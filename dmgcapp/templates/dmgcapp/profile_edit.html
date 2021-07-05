@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>profile edit</title>
+</head>
+<body>
+Here is profile edit page.<hr>
+{{ test1 }}
+<div>
+    <form method="POST">
+        {% csrf_token %}
+            <div>
+                <label for="nickname">이름</label><br>
+                <input type="text" name="nickname" id="nickname" value="{{ nickname }}" required>
+            </div>
+            <div>
+                <label for="username">아이디</label><br>
+                <input type="text" name="username" id="username" value="{{ username }}" required>
+            </div>
+            <div>
+                <label for="email">이메일</label><br>
+                <input type="email" name="email" id="email" value="{{ email }}" required>
+            </div>
+            <div>
+                <label for="goalCalories">일일 목표 칼로리</label><br>
+                <input type="text" name="goalCalories" id="goalCalories" value="{{ goal_calories }}">
+            </div>
+            <div>
+                <label for="goalCaloriesRatio">일일 목표 탄/단/지 비율</label><br>
+                <input type="text" name="goalCaloriesRatio" id="goalCaloriesRatio" value="{{ goal_calories_ratio }}" placeholder="ex) 60:20:20">
+            </div>
+            <div>
+                <label for="height">키</label><br>
+                <input type="text" name="height" id="height" value="{{ height }}">
+            </div>
+            <div>
+                <label for="weight">체중</label><br>
+                <input type="text" name="weight" id="weight" value="{{ weight }}">
+            </div>
+            <div>
+                <label for="gender">성별</label><br>
+                <select name="gender" id="gender">
+                    <option value="">성별</option>
+                    <option value="male">남자</option>
+                    <option value="female">여자</option>
+                </select>
+            </div>
+            <div>
+                <label for="birthday">생일</label><br>
+                <input type="date" name="birthday" id="birthday">
+            </div>
+            <div>
+                <label for="goalStepCount">목표 걸음 수</label>
+                <input type="text" name="goalStepCount" id="goalStepCount" value="{{ goal_step_count }}">
+            </div>
+            <button type="submit">가입하기</button>
+    </form>
+</div>
+</body>
+</html>

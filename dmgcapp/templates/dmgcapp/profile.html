@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>profile</title>
+</head>
+<body>
+Here is profile page. <hr>
+<a href="{% url 'index' %}">home</a>
+<a href="{% url 'profile_edit' %}">프로필 편집</a><br>
+이름: {{ nickname }}<br>
+아이디: {{ username }}<br>
+이메일: {{ email }}<br>
+일일 목표 칼로리: {{ goal_calories }}<br>
+일일 목표 탄/단/지 비율: {{ goal_calories_ratio }}<br>
+키: {{ height }}<br>
+체중: {{ weight }}<br>
+성별: {{ gender }}<br>
+생일: {{ year }}년 {{ month }}월 {{ day }}일<br>
+목표 걸음 수: {{ goal_step_count }}<br>
+</body>
+</html>

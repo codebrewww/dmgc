@@ -14,3 +14,14 @@ class Account(models.Model):
     weight = models.CharField(max_length=10)
     gender = models.CharField(max_length=20)
     goalStepCount = models.CharField(max_length=20)
+    birthday = models.CharField(max_length=20, null=True)
+
+
+'''
+class TodayCalories(models.Model):
+    userId = models.ForeignKey(Account, on_delete=models.CASCADE, db_column='userId')
+    calories = models.CharField(max_length=20)
+    mealTime = models.CharField(max_length=20)
+    foodName = models.CharField(max_length=100)
+    date = models.DateTimeField(auto_now_add=True)
+'''

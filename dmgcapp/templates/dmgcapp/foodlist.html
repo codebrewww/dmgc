@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,5 +7,72 @@
 </head>
 <body>
 Here is foodList Page.
+<a href="{% url 'index' %}">home</a>
+<hr>
+<div>
+    {% for month, day, day_string in month_day_list %}
+        <span><a href="{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
+    {% endfor %}
+
+</div>
+<div>
+    <div>
+        {% if contained_food_name %}
+            <div>담은 음식: {{ contained_food_name }}</div>
+        {% endif %}
+        {% if contained_calories_amount %}
+            <div>담은 열량: {{ contained_calories_amount }}kcal</div>
+        {% endif %}
+        {% if contained_carbohydrate %}
+            <div>담은 탄수화물: {{ contained_carbohydrate }}</div>
+        {% endif %}
+        {% if contained_protein %}
+            <div>담은 단백질: {{ contained_protein }}</div>
+        {% endif %}
+        {% if contained_fat %}
+            <div>담은 지방: {{ contained_fat }}</div>
+        {% endif %}
+    </div>
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+            <div>
+                <label for="search">검색</label>
+                <input type="text" name="search" id="search">
+            </div>
+            <div>
+                <button type="submit" id="search_button">검색</button>
+            </div>
+        </form>
+    </div>
+    {{ food_info_list }}
+    {% if calories %}
+    <div>
+    {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid in food_info_list  %}
+        제조사명: {{ maker_name }}<br>
+        식품명: {{ food_name }}<br>
+        조사년도: {{ research_year }}<br>
+        총내용량: {{ food_size }}<br>
+        열량: {{ calories }}<br>
+        탄수화물(당류): {{ carbohydrate }} ({{ sugars }})<br>
+        단백질: {{ protein }}<br>
+        지방(포화지방): {{ fat }} ({{ saturated_fatty_acid }})<br>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="radio" name="meal" id="meal" value="breakfast" required>
+            <label for="meal">아침</label>
+            <input type="radio" name="meal" id="meal" value="lunch">
+            <label for="meal">점심</label>
+            <input type="radio" name="meal" id="meal" value="dinner">
+            <label for="meal">저녁</label>
+            <button type="submit" name="caloriesPlusButton" value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}">담기</button>
+        </form>
+    {% endfor %}
+
+    </div>
+    {% endif %}
+</div>
 </body>
+
+
 </html>
