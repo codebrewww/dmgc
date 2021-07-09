@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Account
+from .models import Account, TodayCalories
 from django.contrib.auth.models import User
 from django.contrib import messages, auth
 from math import *
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import hashlib
 import json
 import requests
@@ -28,7 +28,7 @@ def index(request):
     else:
         today_string += str(today_day)
 
-    #today_string = int(today_string)
+    today_string = int(today_string)
     return render(request, 'dmgcapp/index.html', {
         "today_year": today_year,
         "today_month": today_month,
@@ -91,10 +91,68 @@ def signup(request):
     else:
         return render(request, 'dmgcapp/signup.html')
 
-def foodlist(request, today_string):
-    calories_amount = 0
-    if request.method == "POST":
 
+def search(request, today_string):
+    # 날짜 계산
+    today = datetime.today()
+    today_year = today.year
+    today_month = today.month
+    today_day = today.day
+    today_datetime = datetime(today_year, today_month, today_day)
+    month_day_list = []
+    day_string = 0
+
+    # 3일 전부터 1일 전
+    for i in range(3, 0, -1):
+        one_day = today_datetime - timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
+
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
+
+    # 오늘
+    today_string = str(today_year)
+    if 1 <= today_month <= 9:
+        today_string += ("0" + str(today_month))
+    else:
+        today_string += str(today_month)
+    if 1 <= today_day <= 9:
+        today_string += ("0" + str(today_day))
+    else:
+        today_string += str(today_day)
+
+    today_string = int(today_string)
+    month_day_list.append([today_month, today_day, today_string])
+
+    # 1일 후 부터 3일 후
+    for i in range(1, 4):
+        one_day = today_datetime + timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
+
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
+
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
+
+    if request.method == "POST":
+        test3 = 'test3'
         '''
         key_id = "6f79706705224d619099/"
         service_id = "I2790/"
@@ -118,8 +176,10 @@ def foodlist(request, today_string):
 
         if temp_data.get('I2790').get('row') is None:
             food_data = request.POST.get('caloriesPlusButton')
-            food_data_list = list(food_data.split("+"))
+            if food_data is None:
+                return redirect('/dmgcapp/search/%d' % day_string)
 
+            food_data_list = list(food_data.split("+"))
             contained_food_name = ''
             contained_calories_amount = 0
             contained_carbohydrate = 0
@@ -136,13 +196,25 @@ def foodlist(request, today_string):
                 contained_protein = float(food_data_list[3])
             if food_data_list[4]:
                 contained_fat = float(food_data_list[4])
-            return render(request, 'dmgcapp/foodlist.html', {
-                'contained_food_name': contained_food_name,
-                'contained_calories_amount': contained_calories_amount,
-                'contained_carbohydrate': contained_carbohydrate,
-                'contained_protein': contained_protein,
-                'contained_fat': contained_fat
-            })
+            if food_data_list[5]:
+                contained_food_code = food_data_list[5]
+
+            username = request.user
+            user_id = Account.objects.filter(username=username).values_list()[0][0]
+            day_object = date(today_year,today_month, today_day)
+            today_nutr = TodayCalories(
+                userId=Account.objects.get(id=user_id),
+                foodName=contained_food_name,
+                calories=contained_calories_amount,
+                carb=contained_carbohydrate,
+                prot=contained_protein,
+                fat=contained_fat,
+                date=day_object,
+                foodCode=contained_food_code
+            )
+            today_nutr.save()
+            return redirect('/dmgcapp/search/%d' % today_string)
+
         json_data = temp_data.get('I2790').get('row')
 
         food_info_list = []
@@ -167,136 +239,29 @@ def foodlist(request, today_string):
             research_year = json_data[i]['RESEARCH_YEAR']
             # 포화지방산
             saturated_fatty_acid = json_data[i]['NUTR_CONT8']
+            # 식품코드
+            food_code = json_data[i]['FOOD_CD']
             temp_food_info_list = [maker_name, food_name, research_year,
                                    food_size, calories, carbohydrate,
-                                   protein, fat, saturated_fatty_acid]
+                                   protein, fat, saturated_fatty_acid, sugars, food_code]
 
             food_info_list.append(temp_food_info_list)
 
-        # 날짜 계산
-        today = datetime.today()
-        today_year = today.year
-        today_month = today.month
-        today_day = today.day
-        today_datetime = datetime(today_year, today_month, today_day)
-        month_day_list = []
 
-        # 3일 전부터 1일 전
-        for i in range(3,0,-1):
-            one_day = today_datetime - timedelta(days=i)
-            day_string = str(one_day.year)
-            if 1 <= one_day.month <= 9:
-                day_string += ("0"+str(one_day.month))
-            else:
-                day_string += str(one_day.month)
-
-            if 1 <= one_day.day <= 9:
-                day_string += ("0"+str(one_day.day))
-            else:
-                day_string += str(one_day.day)
-            day_string = int(day_string)
-            temp = [one_day.month, one_day.day, day_string]
-            month_day_list.append(temp)
-
-        # 오늘
-        today_string = str(today_year)
-        if 1 <= today_month <= 9:
-            today_string += ("0" + str(today_month))
-        else:
-            today_string += str(today_month)
-        if 1 <= today_day <= 9:
-            today_string += ("0" + str(today_day))
-        else:
-            today_string += str(today_day)
-
-        today_string = int(today_string)
-        month_day_list.append([today_month, today_day, today_string])
-
-        # 1일 후 부터 3일 후
-        for i in range(1,4):
-            one_day = today_datetime + timedelta(days=i)
-            day_string = str(one_day.year)
-            if 1 <= one_day.month <= 9:
-                day_string += ("0" + str(one_day.month))
-            else:
-                day_string += str(one_day.month)
-
-            if 1 <= one_day.day <= 9:
-                day_string += ("0" + str(one_day.day))
-            else:
-                day_string += str(one_day.day)
-
-            day_string = int(day_string)
-            temp = [one_day.month, one_day.day, day_string]
-            month_day_list.append(temp)
-
-        return render(request, 'dmgcapp/foodlist.html', {
+        return render(request, 'dmgcapp/search.html', {
             "today_string": today_string,
             "month_day_list": month_day_list,
+            "day_string": day_string,
+            "test3": test3,
+            "food_info_list": food_info_list,
+            "calories": calories,
         })
 
     else:
-        # 날짜 계산
-        today = datetime.today()
-        today_year = today.year
-        today_month = today.month
-        today_day = today.day
-        today_datetime = datetime(today_year, today_month, today_day)
-        month_day_list = []
-
-        # 3일 전부터 1일 전
-        for i in range(3,0,-1):
-            one_day = today_datetime - timedelta(days=i)
-            day_string = str(one_day.year)
-            if 1 <= one_day.month <= 9:
-                day_string += ("0"+str(one_day.month))
-            else:
-                day_string += str(one_day.month)
-
-            if 1 <= one_day.day <= 9:
-                day_string += ("0"+str(one_day.day))
-            else:
-                day_string += str(one_day.day)
-            day_string = int(day_string)
-            temp = [one_day.month, one_day.day, day_string]
-            month_day_list.append(temp)
-
-        # 오늘
-        today_string = str(today_year)
-        if 1 <= today_month <= 9:
-            today_string += ("0" + str(today_month))
-        else:
-            today_string += str(today_month)
-        if 1 <= today_day <= 9:
-            today_string += ("0" + str(today_day))
-        else:
-            today_string += str(today_day)
-
-        today_string = int(today_string)
-        month_day_list.append([today_month, today_day, today_string])
-
-        # 1일 후 부터 3일 후
-        for i in range(1,4):
-            one_day = today_datetime + timedelta(days=i)
-            day_string = str(one_day.year)
-            if 1 <= one_day.month <= 9:
-                day_string += ("0" + str(one_day.month))
-            else:
-                day_string += str(one_day.month)
-
-            if 1 <= one_day.day <= 9:
-                day_string += ("0" + str(one_day.day))
-            else:
-                day_string += str(one_day.day)
-
-            day_string = int(day_string)
-            temp = [one_day.month, one_day.day, day_string]
-            month_day_list.append(temp)
-
-        return render(request, 'dmgcapp/foodlist.html', {
+        return render(request, 'dmgcapp/search.html', {
             "today_string": today_string,
             "month_day_list": month_day_list,
-
+            "day_string": day_string,
         })
 
 
@@ -405,3 +370,41 @@ def profile_edit(request):
             'goal_step_count': goal_step_count,
             'birthday': birthday,
         })
+
+
+def calculator(request):
+    # 시간 계산
+    today = datetime.today()
+    today_year = today.year
+    today_month = today.month
+    today_day = today.day
+    today_string = str(today_year)
+
+    if 1 <= today_month <= 9:
+        today_string += ("0"+str(today_month))
+    else:
+        today_string += str(today_month)
+    if 1 <= today_day <= 9:
+        today_string += ("0"+str(today_day))
+    else:
+        today_string += str(today_day)
+
+    today_string = int(today_string)
+
+    username = request.user
+    user_id = Account.objects.filter(username=username).values_list()[0][0]
+    food_info_list = TodayCalories.objects.filter(userId=user_id).values_list()
+    parsed_food_info_list = []
+
+    return render(request, 'dmgcapp/calculator.html', {
+        'today_string': today_string,
+        'food_info_list': food_info_list,
+    })
+
+
+def summary(request):
+    pass
+
+
+def setting(request):
+    pass

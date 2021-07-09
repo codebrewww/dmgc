@@ -17,11 +17,12 @@ class Account(models.Model):
     birthday = models.CharField(max_length=20, null=True)
 
 
-'''
 class TodayCalories(models.Model):
     userId = models.ForeignKey(Account, on_delete=models.CASCADE, db_column='userId')
     calories = models.CharField(max_length=20)
-    mealTime = models.CharField(max_length=20)
     foodName = models.CharField(max_length=100)
-    date = models.DateTimeField(auto_now_add=True)
-'''
+    carb = models.CharField(max_length=20)
+    prot = models.CharField(max_length=20)
+    fat = models.CharField(max_length=20)
+    foodCode = models.CharField(max_length=20, null=True)
+    date = models.DateTimeField()

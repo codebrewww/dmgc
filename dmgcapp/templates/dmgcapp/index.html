@@ -8,8 +8,9 @@
 <body>
 {% if user.is_authenticated %}
     <a href="{% url 'logout' %}">로그아웃</a>
-    <a href="foodlist/{{ today_string }}">음식담기</a>
+    <a href="search/{{ today_string }}">음식담기</a>
     <a href="{% url 'profile' %}">프로필</a>
+    <a href="{% url 'calculator' %}">calculator</a>
 {% else %}
     <a href="{% url 'login' %}">로그인</a>
     <a href="{% url 'signup' %}">회원가입</a>

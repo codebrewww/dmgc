@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>foodlist</title>
+    <title>search</title>
 </head>
 <body>
 Here is foodList Page.
@@ -11,12 +11,12 @@ Here is foodList Page.
 <hr>
 <div>
     {% for month, day, day_string in month_day_list %}
-        <span><a href="{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
+        <span><a href="/dmgcapp/search/{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
     {% endfor %}
-
 </div>
 <div>
     <div>
+
         {% if contained_food_name %}
             <div>담은 음식: {{ contained_food_name }}</div>
         {% endif %}
@@ -24,13 +24,13 @@ Here is foodList Page.
             <div>담은 열량: {{ contained_calories_amount }}kcal</div>
         {% endif %}
         {% if contained_carbohydrate %}
-            <div>담은 탄수화물: {{ contained_carbohydrate }}</div>
+            <div>담은 탄수화물: {{ contained_carbohydrate }}kcal</div>
         {% endif %}
         {% if contained_protein %}
-            <div>담은 단백질: {{ contained_protein }}</div>
+            <div>담은 단백질: {{ contained_protein }}kcal</div>
         {% endif %}
         {% if contained_fat %}
-            <div>담은 지방: {{ contained_fat }}</div>
+            <div>담은 지방: {{ contained_fat }}kcal</div>
         {% endif %}
     </div>
     <div>
@@ -44,11 +44,11 @@ Here is foodList Page.
                 <button type="submit" id="search_button">검색</button>
             </div>
         </form>
+        <hr>
     </div>
-    {{ food_info_list }}
     {% if calories %}
     <div>
-    {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid in food_info_list  %}
+    {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
         제조사명: {{ maker_name }}<br>
         식품명: {{ food_name }}<br>
         조사년도: {{ research_year }}<br>
@@ -59,20 +59,13 @@ Here is foodList Page.
         지방(포화지방): {{ fat }} ({{ saturated_fatty_acid }})<br>
         <form method="POST">
             {% csrf_token %}
-            <input type="radio" name="meal" id="meal" value="breakfast" required>
-            <label for="meal">아침</label>
-            <input type="radio" name="meal" id="meal" value="lunch">
-            <label for="meal">점심</label>
-            <input type="radio" name="meal" id="meal" value="dinner">
-            <label for="meal">저녁</label>
-            <button type="submit" name="caloriesPlusButton" value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}">담기</button>
+            <button type="submit" name="caloriesPlusButton" value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}">담기</button>
         </form>
+        <hr>
     {% endfor %}
 
     </div>
     {% endif %}
 </div>
 </body>
-
-
 </html>
