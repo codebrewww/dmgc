@@ -392,13 +392,44 @@ def calculator(request):
     today_string = int(today_string)
 
     username = request.user
+    day_object = date(today_year, today_month, today_day)
     user_id = Account.objects.filter(username=username).values_list()[0][0]
-    food_info_list = TodayCalories.objects.filter(userId=user_id).values_list()
+    food_info_list = TodayCalories.objects.filter(userId=user_id, date=day_object).values_list()
     parsed_food_info_list = []
+
+    today_calories = 0
+    today_carb = 0
+    today_prot = 0
+    today_fat = 0
+    for i in range(len(food_info_list)):
+        calories = food_info_list[i][2]
+        food_name = food_info_list[i][3]
+        carb = food_info_list[i][4]
+        prot = food_info_list[i][5]
+        fat = food_info_list[i][6]
+        food_code = food_info_list[i][7]
+        date_object = food_info_list[i][8]
+        year = date_object.year
+        month = date_object.month
+        day = date_object.day
+
+        today_calories += float(calories)
+        today_carb += float(carb)
+        today_prot += float(prot)
+        today_fat += float(fat)
+
+        temp_list = [calories, food_name, carb, prot, fat,
+                     food_code, year, month, day]
+        parsed_food_info_list.append(temp_list)
 
     return render(request, 'dmgcapp/calculator.html', {
         'today_string': today_string,
         'food_info_list': food_info_list,
+        'parsed_food_info_list': parsed_food_info_list,
+        'today_calories': today_calories,
+        'today_carb': today_carb,
+        'today_prot': today_prot,
+        'today_fat': today_fat,
     })
 
 
