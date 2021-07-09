@@ -5,9 +5,21 @@
     <title>계산기</title>
 </head>
 <body>
-Here is Calculator Page.
+Here is Calculator Page.<br>
+<p>
+    민주공주👸<br>
+    사랑해 💕<br>
+    오늘도 민주와 함께 해서 너무 즐거웠어 🤗<br>
+    늘 내 곁에 있어줘서 고마워 🤩<br>
+    오늘 하루도 수고많았어 러뱌 👩‍❤️‍👨<br>
+</p>
 <a href="{% url 'index' %}">home</a>
-<a href="search/{{ today_string }}">search</a>
+<a href="/dmgcapp/search/{{ today_string }}">search</a>
+<div>
+    {% for month, day, day_string in month_day_list %}
+        <span><a href="/dmgcapp/calculator/{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
+    {% endfor %}
+</div>
 <hr>
 담은 칼로리: {{ today_calories }}<br>
 담은 탄수화물: {{ today_carb }}<br>
@@ -15,16 +27,22 @@ Here is Calculator Page.
 담은 지방: {{ today_fat }}<br>
 <hr>
 <div>
-    {% for calories, food_name, carb, prot, fat, food_code, year, month, day in parsed_food_info_list %}
-        열량: {{ calories }}<br>
-        음식 이름: {{ food_name }}<br>
-        탄수화물: {{ prot }}<br>
-        지방: {{ fat }}<br>
-        단백질: {{ prot }}<br>
-        음식 코드: {{ food_code }}<br>
-        담은 날짜: {{ year }}년 {{ month }}월 {{ day }}일
-        <hr>
-    {% endfor %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="삭제"><br>
+        {% for calories, food_name, carb, prot, fat, food_code, year, month, day in parsed_food_info_list %}
+            <label><input type="checkbox" name="nutr" value="{{ food_code }}">삭제 선택</label><br>
+            열량: {{ calories }}<br>
+            음식 이름: {{ food_name }}<br>
+            탄수화물: {{ carb }}<br>
+            단백질: {{ prot }}<br>
+            지방: {{ fat }}<br>
+            음식 코드: {{ food_code }}<br>
+            담은 날짜: {{ year }}년 {{ month }}월 {{ day }}일
+            <hr>
+        {% endfor %}
+    </form>
+
 </div>
 
 </body>

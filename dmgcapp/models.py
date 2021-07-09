@@ -25,4 +25,4 @@ class TodayCalories(models.Model):
     prot = models.CharField(max_length=20)
     fat = models.CharField(max_length=20)
     foodCode = models.CharField(max_length=20, null=True)
-    date = models.DateTimeField()
+    date = models.DateField()

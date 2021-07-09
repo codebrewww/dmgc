@@ -48,22 +48,21 @@ Here is foodList Page.
     </div>
     {% if calories %}
     <div>
-    {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
-        제조사명: {{ maker_name }}<br>
-        식품명: {{ food_name }}<br>
-        조사년도: {{ research_year }}<br>
-        총내용량: {{ food_size }}<br>
-        열량: {{ calories }}<br>
-        탄수화물(당류): {{ carbohydrate }} ({{ sugars }})<br>
-        단백질: {{ protein }}<br>
-        지방(포화지방): {{ fat }} ({{ saturated_fatty_acid }})<br>
-        <form method="POST">
-            {% csrf_token %}
-            <button type="submit" name="caloriesPlusButton" value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}">담기</button>
-        </form>
-        <hr>
-    {% endfor %}
-
+        {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
+            제조사명: {{ maker_name }}<br>
+            식품명: {{ food_name }}<br>
+            조사년도: {{ research_year }}<br>
+            총내용량: {{ food_size }}<br>
+            열량: {{ calories }}<br>
+            탄수화물(당류): {{ carbohydrate }} ({{ sugars }})<br>
+            단백질: {{ protein }}<br>
+            지방(포화지방): {{ fat }} ({{ saturated_fatty_acid }})<br>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="caloriesPlusButton" value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}">담기</button>
+            </form>
+            <hr>
+        {% endfor %}
     </div>
     {% endif %}
 </div>

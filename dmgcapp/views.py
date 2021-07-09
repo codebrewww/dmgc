@@ -152,7 +152,7 @@ def search(request, today_string):
         month_day_list.append(temp)
 
     if request.method == "POST":
-        test3 = 'test3'
+
         '''
         key_id = "6f79706705224d619099/"
         service_id = "I2790/"
@@ -175,6 +175,7 @@ def search(request, today_string):
         temp_data = requests.get(url).json()
 
         if temp_data.get('I2790').get('row') is None:
+
             food_data = request.POST.get('caloriesPlusButton')
             if food_data is None:
                 return redirect('/dmgcapp/search/%d' % day_string)
@@ -185,6 +186,7 @@ def search(request, today_string):
             contained_carbohydrate = 0
             contained_protein = 0
             contained_fat = 0
+            contained_food_code = ""
 
             if food_data_list[0]:
                 contained_food_name = food_data_list[0]
@@ -201,7 +203,11 @@ def search(request, today_string):
 
             username = request.user
             user_id = Account.objects.filter(username=username).values_list()[0][0]
-            day_object = date(today_year,today_month, today_day)
+            path_day_string = int(request.path[16:])
+            day_object_year = int(request.path[16:20])
+            day_object_month = int(request.path[20:22])
+            day_object_day = int(request.path[22:24])
+            day_object = date(day_object_year, day_object_month, day_object_day)
             today_nutr = TodayCalories(
                 userId=Account.objects.get(id=user_id),
                 foodName=contained_food_name,
@@ -210,10 +216,10 @@ def search(request, today_string):
                 prot=contained_protein,
                 fat=contained_fat,
                 date=day_object,
-                foodCode=contained_food_code
+                foodCode=contained_food_code,
             )
             today_nutr.save()
-            return redirect('/dmgcapp/search/%d' % today_string)
+            return redirect('/dmgcapp/search/%d' % path_day_string)
 
         json_data = temp_data.get('I2790').get('row')
 
@@ -252,7 +258,6 @@ def search(request, today_string):
             "today_string": today_string,
             "month_day_list": month_day_list,
             "day_string": day_string,
-            "test3": test3,
             "food_info_list": food_info_list,
             "calories": calories,
         })
@@ -372,65 +377,164 @@ def profile_edit(request):
         })
 
 
-def calculator(request):
-    # 시간 계산
+def calculator(request, today_string):
+    # 날짜 계산
     today = datetime.today()
     today_year = today.year
     today_month = today.month
     today_day = today.day
-    today_string = str(today_year)
+    today_datetime = datetime(today_year, today_month, today_day)
+    month_day_list = []
+    day_string = 0
 
+    # 3일 전부터 1일 전
+    for i in range(3, 0, -1):
+        one_day = today_datetime - timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
+
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
+
+    # 오늘
+    today_string = str(today_year)
     if 1 <= today_month <= 9:
-        today_string += ("0"+str(today_month))
+        today_string += ("0" + str(today_month))
     else:
         today_string += str(today_month)
     if 1 <= today_day <= 9:
-        today_string += ("0"+str(today_day))
+        today_string += ("0" + str(today_day))
     else:
         today_string += str(today_day)
 
     today_string = int(today_string)
+    month_day_list.append([today_month, today_day, today_string])
 
-    username = request.user
-    day_object = date(today_year, today_month, today_day)
-    user_id = Account.objects.filter(username=username).values_list()[0][0]
-    food_info_list = TodayCalories.objects.filter(userId=user_id, date=day_object).values_list()
-    parsed_food_info_list = []
+    # 1일 후 부터 3일 후
+    for i in range(1, 4):
+        one_day = today_datetime + timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
 
-    today_calories = 0
-    today_carb = 0
-    today_prot = 0
-    today_fat = 0
-    for i in range(len(food_info_list)):
-        calories = food_info_list[i][2]
-        food_name = food_info_list[i][3]
-        carb = food_info_list[i][4]
-        prot = food_info_list[i][5]
-        fat = food_info_list[i][6]
-        food_code = food_info_list[i][7]
-        date_object = food_info_list[i][8]
-        year = date_object.year
-        month = date_object.month
-        day = date_object.day
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
 
-        today_calories += float(calories)
-        today_carb += float(carb)
-        today_prot += float(prot)
-        today_fat += float(fat)
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
 
-        temp_list = [calories, food_name, carb, prot, fat,
-                     food_code, year, month, day]
-        parsed_food_info_list.append(temp_list)
+    if request.method == "POST":
+        delete_check_list = request.POST.getlist('nutr')
 
-    return render(request, 'dmgcapp/calculator.html', {
-        'today_string': today_string,
-        'food_info_list': food_info_list,
-        'parsed_food_info_list': parsed_food_info_list,
-        'today_calories': today_calories,
-        'today_carb': today_carb,
-        'today_prot': today_prot,
-        'today_fat': today_fat,
-    })
+        username = request.user
+        day_object_year = int(request.path[20:24])
+        day_object_month = int(request.path[24:26])
+        day_object_day = int(request.path[26:28])
+        day_object = date(day_object_year, day_object_month, day_object_day)
+        user_id = Account.objects.filter(username=username).values_list()[0][0]
+
+        for food_code in delete_check_list:
+            TodayCalories.objects.filter(userId=user_id, date=day_object, foodCode=food_code).delete()
+
+        food_info_list = TodayCalories.objects.filter(userId=user_id, date=day_object).values_list()
+        parsed_food_info_list = []
+        today_calories = 0
+        today_carb = 0
+        today_prot = 0
+        today_fat = 0
+        for i in range(len(food_info_list)):
+            calories = food_info_list[i][2]
+            food_name = food_info_list[i][3]
+            carb = food_info_list[i][4]
+            prot = food_info_list[i][5]
+            fat = food_info_list[i][6]
+            food_code = food_info_list[i][7]
+            date_object = food_info_list[i][8]
+            year = date_object.year
+            month = date_object.month
+            day = date_object.day
+
+            today_calories += float(calories)
+            today_carb += float(carb)
+            today_prot += float(prot)
+            today_fat += float(fat)
+
+            temp_list = [calories, food_name, carb, prot, fat,
+                         food_code, year, month, day]
+            parsed_food_info_list.append(temp_list)
+
+        return render(request, 'dmgcapp/calculator.html', {
+            'today_string': today_string,
+            'food_info_list': food_info_list,
+            'parsed_food_info_list': parsed_food_info_list,
+            'today_calories': today_calories,
+            'today_carb': today_carb,
+            'today_prot': today_prot,
+            'today_fat': today_fat,
+            'day_object': day_object,
+            "month_day_list": month_day_list,
+        })
+
+
+    else:
+        username = request.user
+        day_object_year = int(request.path[20:24])
+        day_object_month = int(request.path[24:26])
+        day_object_day = int(request.path[26:28])
+        day_object = date(day_object_year, day_object_month, day_object_day)
+        user_id = Account.objects.filter(username=username).values_list()[0][0]
+        food_info_list = TodayCalories.objects.filter(userId=user_id, date=day_object).values_list()
+        parsed_food_info_list = []
+
+        today_calories = 0
+        today_carb = 0
+        today_prot = 0
+        today_fat = 0
+        for i in range(len(food_info_list)):
+            calories = food_info_list[i][2]
+            food_name = food_info_list[i][3]
+            carb = food_info_list[i][4]
+            prot = food_info_list[i][5]
+            fat = food_info_list[i][6]
+            food_code = food_info_list[i][7]
+            date_object = food_info_list[i][8]
+            year = date_object.year
+            month = date_object.month
+            day = date_object.day
+
+            today_calories += float(calories)
+            today_carb += float(carb)
+            today_prot += float(prot)
+            today_fat += float(fat)
+
+            temp_list = [calories, food_name, carb, prot, fat,
+                         food_code, year, month, day]
+            parsed_food_info_list.append(temp_list)
+
+        return render(request, 'dmgcapp/calculator.html', {
+            'today_string': today_string,
+            'food_info_list': food_info_list,
+            'parsed_food_info_list': parsed_food_info_list,
+            'today_calories': today_calories,
+            'today_carb': today_carb,
+            'today_prot': today_prot,
+            'today_fat': today_fat,
+            'day_object': day_object,
+            "month_day_list": month_day_list,
+        })
 
 
 def summary(request):

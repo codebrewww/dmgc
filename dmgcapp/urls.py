@@ -9,6 +9,6 @@ urlpatterns = [
     path('search/<int:today_string>', views.search, name='search'),
     path('profile', views.profile, name='profile'),
     path('profile_edit', views.profile_edit, name='profile_edit'),
-    path('calculator', views.calculator, name='calculator'),
+    path('calculator/<int:today_string>', views.calculator, name='calculator'),
     # path('summary', views.)
 ]
