@@ -21,10 +21,10 @@ Here is Calculator Page.<br>
     {% endfor %}
 </div>
 <hr>
-담은 칼로리: {{ today_calories }}<br>
-담은 탄수화물: {{ today_carb }}<br>
-담은 단백질: {{ today_prot }}<br>
-담은 지방: {{ today_fat }}<br>
+담은 칼로리: {{ today_calories }}kcal<br>
+담은 탄수화물: {{ today_carb }}g<br>
+담은 단백질: {{ today_prot }}g<br>
+담은 지방: {{ today_fat }}g<br>
 <hr>
 <div>
     <form method="post">
@@ -32,11 +32,11 @@ Here is Calculator Page.<br>
         <input type="submit" value="삭제"><br>
         {% for calories, food_name, carb, prot, fat, food_code, year, month, day in parsed_food_info_list %}
             <label><input type="checkbox" name="nutr" value="{{ food_code }}">삭제 선택</label><br>
-            열량: {{ calories }}<br>
+            열량: {{ calories }}kcal<br>
             음식 이름: {{ food_name }}<br>
-            탄수화물: {{ carb }}<br>
-            단백질: {{ prot }}<br>
-            지방: {{ fat }}<br>
+            탄수화물: {{ carb }}g<br>
+            단백질: {{ prot }}g<br>
+            지방: {{ fat }}g<br>
             음식 코드: {{ food_code }}<br>
             담은 날짜: {{ year }}년 {{ month }}월 {{ day }}일
             <hr>
