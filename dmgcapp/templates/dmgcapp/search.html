@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>search</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 </head>
-<body>
-Here is foodList Page.
-<a href="{% url 'index' %}">home</a>
-<hr>
-<div>
+<body id="background">
+{#<a href="{% url 'index' %}">home</a>#}
+{#<hr>#}
+<div id="container-week" class="flex-row justify-content-between">
     {% for month, day, day_string in month_day_list %}
-        <span><a href="/dmgcapp/search/{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
+       <a href="/dmgcapp/search/{{ day_string }}" id="week">{{ month }}.{{ day }}</a>
     {% endfor %}
 </div>
 <div>
