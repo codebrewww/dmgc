@@ -17,7 +17,6 @@ Here is foodList Page.
 </div>
 <div>
     <div>
-
         {% if contained_food_name %}
             <div>담은 음식: {{ contained_food_name }}</div>
         {% endif %}
@@ -38,14 +37,26 @@ Here is foodList Page.
         <form method="POST">
             {% csrf_token %}
             <div>
-                <label for="search">검색</label>
+                <label for="search">제품명으로 검색</label>
                 <input type="text" name="search" id="search">
             </div>
             <div>
                 <button type="submit" id="search_button">검색</button>
             </div>
+            <div>
+                <label for="search">제조사로 검색</label>
+                <input type="text" name="search2" id="search2">
+            </div>
+            <div>
+                <button type="submit" id="search_button2">검색</button>
+            </div>
         </form>
         <hr>
+    {% if messages %}
+        {% for message in messages %}
+            {{ message.tags }}! {{ message.message }}
+        {% endfor %}
+    {% endif %}
     </div>
     {% if calories %}
     <div>
