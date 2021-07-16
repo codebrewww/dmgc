@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends "layout.html" %}
 {% block content %}
 
@@ -9,6 +10,11 @@
     </div>
 
     <div class="w-50 margin-center">
+        {% if messages %}
+            {% for message in messages %}
+                {{ message.tags }}! {{ message.message }}
+            {% endfor %}
+        {% endif %}
         <form method="POST" id="form-signup">
             {% csrf_token %}
             <div>

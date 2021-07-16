@@ -8,7 +8,6 @@ from datetime import datetime, timedelta, date
 import hashlib
 import json
 import requests
-import calendar
 # Create your views here.
 
 
@@ -46,7 +45,7 @@ def login(request):
             auth.login(request, user)
             return redirect('/dmgcapp/')
         else:
-            messages.info(request, '아이디 혹은 비밀번호가 잘못되었습니다')
+            messages.error(request, '아이디 혹은 비밀번호가 잘못되었습니다')
             return redirect('login')
     else:
         return render(request, 'dmgcapp/login.html')
@@ -60,17 +59,17 @@ def logout(request):
 def signup(request):
     if request.method == 'POST':
         if Account.objects.filter(username=request.POST['username']).values():
-            messages.info(request, '이미 존재하는 아이디 입니다.')
+            messages.error(request, '이미 존재하는 아이디 입니다.')
             return redirect('signup')
 
         # 비밀번호가 10자리 미만으로 구성 될 경우
         elif len(request.POST['password1']) < 10:
-            messages.info(request, '비밀번호는 10자 이상으로 설정해주세요')
+            messages.error(request, '비밀번호는 10자 이상으로 설정해주세요')
             return redirect('signup')
 
         # 비밀번호가 서로 일치 하지 않는 경우
         elif request.POST['password1'] != request.POST['password2']:
-            messages.info(request, '비밀번호가 서로 일치하지 않습니다. 확인해 주세요')
+            messages.error(request, '비밀번호가 서로 일치하지 않습니다. 확인해 주세요')
             return redirect('signup')
 
         # 비밀번호가 서로 일치 할 경우
@@ -150,124 +149,137 @@ def search(request, today_string):
         day_string = int(day_string)
         temp = [one_day.month, one_day.day, day_string]
         month_day_list.append(temp)
+    try:
+        if request.method == "POST":
 
-    if request.method == "POST":
-
-        '''
-        key_id = "6f79706705224d619099/"
-        service_id = "I2790/"
-        datatype = 'json/'
-        start_idx = "1/"
-        end_idx = "5"
-        '''
-        # 검색어
-        search_food_name = request.POST.get('search')
-
-        # 음식 이름에 공백이 있으면 api 호출이 정상 작동 하지 않음
-        # 따라서 공백을 '_'로 바꾸어 주는 작업 진행
-
-        if search_food_name is not None and ' ' in search_food_name:
-            search_food_name = search_food_name.replace(' ', '_')
-
-        url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                    "I2790/json/1/100/DESC_KOR=%s" % search_food_name
-
-        temp_data = requests.get(url).json()
-
-        if temp_data.get('I2790').get('row') is None:
             '''
-            food_data = request.POST.get('caloriesPlusButton')
-            if food_data is None:
-                return redirect('/dmgcapp/search/%d' % day_string)
+            key_id = "6f79706705224d619099/"
+            service_id = "I2790/"
+            datatype = 'json/'
+            start_idx = "1/"
+            end_idx = "5"
             '''
 
-            new_food_data = request.POST.getlist('nutr')
-            '''
-            if new_food_data is None:
-                return redirect('/dmgcapp/search/%d' % day_string)
-            '''
+            if request.POST.getlist('nutr'):
+                new_food_data = request.POST.getlist('nutr')
+                path_day_string = int(request.path[16:])
+                day_object_year = int(request.path[16:20])
+                day_object_month = int(request.path[20:22])
+                day_object_day = int(request.path[22:24])
+                day_object = date(day_object_year, day_object_month, day_object_day)
+                for i in range(len(new_food_data)):
+                    temp_contained_food_name = ""
+                    temp_contained_calories_amount = 0
+                    temp_contained_carbohydrate = 0
+                    temp_contained_protein = 0
+                    temp_contained_fat = 0
+                    temp_contained_food_code = ""
 
-            path_day_string = int(request.path[16:])
-            day_object_year = int(request.path[16:20])
-            day_object_month = int(request.path[20:22])
-            day_object_day = int(request.path[22:24])
-            day_object = date(day_object_year, day_object_month, day_object_day)
-            for i in range(len(new_food_data)):
-                temp_contained_food_name = ""
-                temp_contained_calories_amount = 0
-                temp_contained_carbohydrate = 0
-                temp_contained_protein = 0
-                temp_contained_fat = 0
-                temp_contained_food_code = ""
+                    temp_data_list = list(new_food_data[i].split("+"))
+                    if temp_data_list[0]:
+                        temp_contained_food_name = temp_data_list[0]
+                    if temp_data_list[1]:
+                        temp_contained_calories_amount = temp_data_list[1]
+                    if temp_data_list[2]:
+                        temp_contained_carbohydrate = temp_data_list[2]
+                    if temp_data_list[3]:
+                        temp_contained_protein = temp_data_list[3]
+                    if temp_data_list[4]:
+                        temp_contained_fat = temp_data_list[4]
+                    if temp_data_list[5]:
+                        temp_contained_food_code = temp_data_list[5]
 
-                temp_data_list = list(new_food_data[i].split("+"))
-                if temp_data_list[0]:
-                    temp_contained_food_name = temp_data_list[0]
-                if temp_data_list[1]:
-                    temp_contained_calories_amount = temp_data_list[1]
-                if temp_data_list[2]:
-                    temp_contained_carbohydrate = temp_data_list[2]
-                if temp_data_list[3]:
-                    temp_contained_protein = temp_data_list[3]
-                if temp_data_list[4]:
-                    temp_contained_fat = temp_data_list[4]
-                if temp_data_list[5]:
-                    temp_contained_food_code = temp_data_list[5]
+                    username = request.user
+                    user_id = Account.objects.filter(username=username).values_list()[0][0]
+                    today_nutr = TodayCalories(
+                        userId=Account.objects.get(id=user_id),
+                        foodName=temp_contained_food_name,
+                        calories=temp_contained_calories_amount,
+                        carb=temp_contained_carbohydrate,
+                        prot=temp_contained_protein,
+                        fat=temp_contained_fat,
+                        date=day_object,
+                        foodCode=temp_contained_food_code,
+                    )
+                    today_nutr.save()
+                return redirect('/dmgcapp/search/%d' % path_day_string)
 
-                username = request.user
-                user_id = Account.objects.filter(username=username).values_list()[0][0]
-                today_nutr = TodayCalories(
-                    userId=Account.objects.get(id=user_id),
-                    foodName=temp_contained_food_name,
-                    calories=temp_contained_calories_amount,
-                    carb=temp_contained_carbohydrate,
-                    prot=temp_contained_protein,
-                    fat=temp_contained_fat,
-                    date=day_object,
-                    foodCode=temp_contained_food_code,
-                )
-                today_nutr.save()
-            return redirect('/dmgcapp/search/%d' % path_day_string)
+            url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/I2790/json/1/100/DESC_KOR=%s"         # 검색어 - 제품명
+            search_food_name = request.POST.get('search')
 
-        json_data = temp_data.get('I2790').get('row')
-        food_info_list = []
-        for i in range(len(json_data)):
-            # 음식이름
-            food_name = json_data[i]['DESC_KOR']
-            # 칼로리
-            calories = json_data[i]['NUTR_CONT1']
-            # 탄수화물
-            carbohydrate = json_data[i]['NUTR_CONT2']
-            # 단백질
-            protein = json_data[i]['NUTR_CONT3']
-            # 지방
-            fat = json_data[i]['NUTR_CONT4']
-            # 당류
-            sugars = json_data[i]['NUTR_CONT5']
-            # 총 내용량
-            food_size = json_data[i]['SERVING_SIZE']
-            # 제조사명
-            maker_name = json_data[i]['MAKER_NAME']
-            # 조사년도
-            research_year = json_data[i]['RESEARCH_YEAR']
-            # 포화지방산
-            saturated_fatty_acid = json_data[i]['NUTR_CONT8']
-            # 식품코드
-            food_code = json_data[i]['FOOD_CD']
-            temp_food_info_list = [maker_name, food_name, research_year,
-                                   food_size, calories, carbohydrate,
-                                   protein, fat, saturated_fatty_acid, sugars, food_code]
+            # 음식 이름에 공백이 있으면 api 호출이 정상 작동 하지 않음
+            # 따라서 공백을 '_'로 바꾸어 주는 작업 진행
+            if search_food_name is not None and ' ' in search_food_name:
+                search_food_name = search_food_name.replace(' ', '_')
 
-            food_info_list.append(temp_food_info_list)
+            if search_food_name:
+                url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
+                            "I2790/json/1/100/DESC_KOR=%s" % search_food_name
+
+            # 검색어 - 제조사
+            search_company = request.POST.get('search2')
+
+            # 제조사에 공백이 있으면 api 호출이 정상 작동 하지 않음
+            # 따라서 공백을 '_'로 바꾸어 주는 작업 진행
+            if search_company is not None and ' ' in search_company:
+                search_company = search_company.replace(' ', '_')
+            if search_company:
+                url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
+                            "I2790/json/1/100/MAKER_NAME=%s" % search_company
+
+            # 검색어 - 제조사 & 제품명
+            if search_company is not None and search_food_name is not None:
+                if ' ' in search_company:
+                    search_company = search_company.replace(' ', '_')
+                if ' ' in search_food_name:
+                    search_food_name = search_food_name.replace(' ', '_')
+            if search_company and search_food_name:
+                url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
+                            "I2790/json/1/100/MAKER_NAME=%s&DESC_KOR=%s" % (search_company, search_food_name)
+
+            temp_data = requests.get(url).json()
+            json_data = temp_data.get('I2790').get('row')
+            food_info_list = []
+            for i in range(len(json_data)):
+                # 음식이름
+                food_name = json_data[i]['DESC_KOR']
+                # 칼로리
+                calories = json_data[i]['NUTR_CONT1']
+                # 탄수화물
+                carbohydrate = json_data[i]['NUTR_CONT2']
+                # 단백질
+                protein = json_data[i]['NUTR_CONT3']
+                # 지방
+                fat = json_data[i]['NUTR_CONT4']
+                # 당류
+                sugars = json_data[i]['NUTR_CONT5']
+                # 총 내용량
+                food_size = json_data[i]['SERVING_SIZE']
+                # 제조사명
+                maker_name = json_data[i]['MAKER_NAME']
+                # 조사년도
+                research_year = json_data[i]['RESEARCH_YEAR']
+                # 포화지방산
+                saturated_fatty_acid = json_data[i]['NUTR_CONT8']
+                # 식품코드
+                food_code = json_data[i]['FOOD_CD']
+                temp_food_info_list = [maker_name, food_name, research_year,
+                                       food_size, calories, carbohydrate,
+                                       protein, fat, saturated_fatty_acid, sugars, food_code]
+
+                food_info_list.append(temp_food_info_list)
 
 
-        return render(request, 'dmgcapp/search.html', {
-            "today_string": today_string,
-            "month_day_list": month_day_list,
-            "day_string": day_string,
-            "food_info_list": food_info_list,
-            "calories": calories,
-        })
+            return render(request, 'dmgcapp/search.html', {
+                "today_string": today_string,
+                "month_day_list": month_day_list,
+                "day_string": day_string,
+                "food_info_list": food_info_list,
+                "calories": calories,
+            })
+    except:
+        messages.error(request, '검색어를 다시 한번 확인해 주세요')
+        return redirect('/dmgcapp/search/%d' % today_string)
 
     else:
         return render(request, 'dmgcapp/search.html', {
@@ -530,8 +542,6 @@ def calculator(request, today_string):
                          food_code, year, month, day]
             parsed_food_info_list.append(temp_list)
 
-        cal = calendar.HTMLCalendar().formatyear(2021)
-
         return render(request, 'dmgcapp/calculator.html', {
             'today_string': today_string,
             'food_info_list': food_info_list,
@@ -542,12 +552,12 @@ def calculator(request, today_string):
             'today_fat': today_fat,
             'day_object': day_object,
             "month_day_list": month_day_list,
-            "cal": cal,
         })
 
 
 def summary(request):
-    pass
+    if request.method == 'GET':
+        pass
 
 
 def setting(request):

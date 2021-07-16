@@ -8,108 +8,101 @@
 
 </head>
 <body id="background">
-{#<a href="{% url 'index' %}">home</a>#}
-{#<hr>#}
-<div id="container-week" class="flex-row justify-content-between">
-    {% for month, day, day_string in month_day_list %}
-       <a href="/dmgcapp/search/{{ day_string }}" id="week">{{ month }}.{{ day }}</a>
-    {% endfor %}
-</div>
+    <div class="nav">
+       <a href="{% url 'index' %}">home</a>
+    </div>
+    <div id="container-week" class="flex-row justify-content-between">
+        {% for month, day, day_string in month_day_list %}
+           <a href="/dmgcapp/search/{{ day_string }}" id="week">{{ month }}.{{ day }}</a>
+        {% endfor %}
+    </div>
     {% if calories %}
-<div id="container-search-result" class="flex-column">
-    <div id="background-search" class="zindex-0">
-        SEARCH
-    </div>
-    <form id="form-search" class="zindex-1" method="post">
-        {% csrf_token %}
-        <input id="input-search" name="search" type="text"/>
-    </form>
-    <div>
-        <form id="form-search-result">
+    <div id="container-search-result" class="flex-column">
+        <div id="background-search" class="zindex-0">
+            SEARCH
+        </div>
+        <form id="form-search" class="zindex-1" method="post">
             {% csrf_token %}
-            <input id="input-add" type="submit" value="담기"><br>
-
-            <table id="table-search-result">
-                <tr>
-                    <th></th>
-                    <th>제조사명</th>
-                    <th>식품명</th>
-                    <th>조사년도</th>
-                    <th>1회제공량(g)</th>
-                    <th>칼로리</th>
-                    <th>탄수화물(당류)</th>
-                    <th>단백질</th>
-                    <th>지방(포화지방)</th>
-                </tr>
-                <tr id="tr-sum">
-                    <td>
-    {#                    <input type="checkbox"/>#}
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td id="td-sum-cal"></td>
-                    <td id="td-sum-carb"></td>
-                    <td id="td-sum-pro"></td>
-                    <td id="td-sum-fat"></td>
-                </tr>
-
-                {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
-                <tr>
-                    <td>
-                        <input type="checkbox" data-code="{{ food_code }}"
-                               data-cal="{{ calories }}"
-                               data-carb="{{ carbohydrate }}"
-                               data-sugar="{{ sugars }}"
-                               data-pro="{{ protein }}"
-                               data-fat="{{ fat }}"
-                               data-unfat="{{ saturated_fatty_acid }}"
-                               name="nutr"
-                               onclick="calc(event)"
-                               value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}"
-                        />
-                    </td>
-                    <td>{{ maker_name }}</td>
-                    <td>{{ food_name }}</td>
-                    <td>{{ research_year }}</td>
-                    <td>{{ food_size }}</td>
-                    <td>{{ calories }}</td>
-                    <td>{{ carbohydrate }} ({{ sugars }})</td>
-                    <td>{{ protein }}</td>
-                    <td>{{ fat }} ({{ saturated_fatty_acid }})</td>
-                </tr>
-             {% endfor %}
-            </table>ㅑ
+            <input id="input-search" name="search" type="text" placeholder="제품명"/>
+            <input id="input-search" name="search2" type="text" placeholder="제조사"/>
+            <input type="submit" value="검색" class="d-none"/>
         </form>
-    </div>
-    {% else %}
-<div id="container-search">
-    <div id="background-search">
-        SEARCH
-    </div>
-        <form id="form-search" class="margin-auto" method="post">
-            {% csrf_token %}
-            <input id="input-search" name="search" type="text"/>
-        </form>
-    {% endif %}
-</div>
-{#<div>#}
-{#    <div>#}
-{#        <form method="POST">#}
-{#            {% csrf_token %}#}
-{#            <div>#}
-{#                <label for="search">검색</label>#}
-{#                <input type="text" name="search" id="search">#}
-{#            </div>#}
-{#            <div>#}
-{#                <button type="submit" id="search_button">검색</button>#}
-{#            </div>#}
-{#        </form>#}
-{#        <hr>#}
-{#    </div>#}
-{#    #}
-{#</div>#}
-</body>
-<script type="text/javascript" src="{% static 'js/script.js' %}" ></script>
+        <div>
+            <form id="form-search-result">
+                {% csrf_token %}
+                <input id="input-add" type="submit" value="담기"><br>
+                <table id="table-search-result">
+                    <tr>
+                        <th></th>
+                        <th>제조사명</th>
+                        <th>식품명</th>
+                        <th>조사년도</th>
+                        <th>1회제공량(g)</th>
+                        <th>칼로리</th>
+                        <th>탄수화물(당류)</th>
+                        <th>단백질</th>
+                        <th>지방(포화지방)</th>
+                    </tr>
+                    <tr id="tr-sum">
+                        <td>
+        {#                    <input type="checkbox"/>#}
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td id="td-sum-cal"></td>
+                        <td id="td-sum-carb"></td>
+                        <td id="td-sum-pro"></td>
+                        <td id="td-sum-fat"></td>
+                    </tr>
+
+                    {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" data-code="{{ food_code }}"
+                                   data-cal="{{ calories }}"
+                                   data-carb="{{ carbohydrate }}"
+                                   data-sugar="{{ sugars }}"
+                                   data-pro="{{ protein }}"
+                                   data-fat="{{ fat }}"
+                                   data-unfat="{{ saturated_fatty_acid }}"
+                                   name="nutr"
+                                   onclick="calc(event)"
+                                   value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}"
+                            />
+                        </td>
+                        <td>{{ maker_name }}</td>
+                        <td>{{ food_name }}</td>
+                        <td>{{ research_year }}</td>
+                        <td>{{ food_size }}</td>
+                        <td>{{ calories }}</td>
+                        <td>{{ carbohydrate }} ({{ sugars }})</td>
+                        <td>{{ protein }}</td>
+                        <td>{{ fat }} ({{ saturated_fatty_acid }})</td>
+                    </tr>
+                 {% endfor %}
+                </table>
+            </form>
+{#        {% if messages %}#}
+{#            {% for message in messages %}#}
+{#                {{ message.tags }}! {{ message.message }}#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+        </div>
+        {% else %}
+        <div id="container-search">
+            <div id="background-search">
+                SEARCH
+            </div>
+            <form id="form-search" class="margin-auto" method="post">
+                {% csrf_token %}
+                <input id="input-search" name="search" type="text" placeholder="제품명"/>
+                <input id="input-search" name="search2" type="text" placeholder="제조사"/>
+                <input type="submit" value="검색" class="d-none"/>
+            </form>
+        {% endif %}
+        </div>
+    </body>
+    <script type="text/javascript" src="{% static 'js/script.js' %}" ></script>
 </html>
