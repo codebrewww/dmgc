@@ -1,12 +1,5 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>다머거치 검색</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-
-</head>
+{% extends "layout.html" %}
+{% block content %}
 <body id="background">
     <div class="nav">
        <a href="{% url 'index' %}">home</a>
@@ -104,5 +97,4 @@
         {% endif %}
         </div>
     </body>
-    <script type="text/javascript" src="{% static 'js/script.js' %}" ></script>
-</html>
+{% endblock content %}
