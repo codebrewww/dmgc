@@ -1,45 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>계산기</title>
-</head>
-<body>
-Here is Calculator Page.<br>
-<p>
-
-</p>
-<a href="{% url 'index' %}">home</a>
-<a href="/dmgcapp/search/{{ today_string }}">search</a>
-<div>
-    {% for month, day, day_string in month_day_list %}
-        <span><a href="/dmgcapp/calculator/{{ day_string }}">{{ month }}월 {{ day }}일 </a>|</span>
-    {% endfor %}
-</div>
-<hr>
-담은 칼로리: {{ today_calories }}kcal<br>
-담은 탄수화물: {{ today_carb }}g<br>
-담은 단백질: {{ today_prot }}g<br>
-담은 지방: {{ today_fat }}g<br>
-<hr>
-<div>
-    <form method="post">
-        {% csrf_token %}
-        <input type="submit" value="삭제"><br>
-        {% for calories, food_name, carb, prot, fat, food_code, year, month, day in parsed_food_info_list %}
-            <label><input type="checkbox" name="nutr" value="{{ food_code }}">삭제 선택</label><br>
-            열량: {{ calories }}kcal<br>
-            음식 이름: {{ food_name }}<br>
-            탄수화물: {{ carb }}g<br>
-            단백질: {{ prot }}g<br>
-            지방: {{ fat }}g<br>
-            음식 코드: {{ food_code }}<br>
-            담은 날짜: {{ year }}년 {{ month }}월 {{ day }}일
-            <hr>
+{% extends "layout.html" %}
+{% block content %}
+<body id="background">
+    <div class="nav">
+        <a href="{% url 'index' %}">home</a>
+        <a href="{% url 'search' %}">search</a>
+    </div>
+    <div id="container-week" class="flex-row justify-content-between">
+        {% for month, day, day_string in month_day_list %}
+           <a href="/dmgcapp/calculator/{{ day_string }}" id="week">{{ month }}.{{ day }}</a>
         {% endfor %}
-    </form>
-
+    </div>
+    <div class="flex-column">
+        <form method="post">
+        {% csrf_token %}
+            <input id="input-delete" type="submit" value="삭제"><br/>
+            <table id="table-search-result">
+                <tr>
+                    <th></th>
+                    <th>식품명</th>
+                    <th>칼로리</th>
+                    <th>탄수화물</th>
+                    <th>당류</th>
+                    <th>단백질</th>
+                    <th>지방</th>
+                    <th>포화지방</th>
+                </tr>
+                <tr id="tr-sum">
+                    <td></td>
+                    <td></td>
+                    <td>{{ today_calories }}</td>
+                    <td>{{ today_carb }}</td>
+                    <td></td>
+                    <td>{{ today_prot }}</td>
+                    <td>{{ today_fat }}</td>
+                    <td></td>
+                </tr>
+                {% for calories, food_name, carb, prot, fat, food_code, year, month, day in parsed_food_info_list %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="nutr" value="{{ food_code }}">
+                    </td>
+                    <td>{{ food_name }}</td>
+                    <td>{{ calories }}</td>
+                    <td>{{ carb }}</td>
+                    <td></td>
+                    <td>{{ prot }}</td>
+                    <td>{{ fat }}</td>
+                    <td></td>
+{#                    음식 코드: {{ food_code }}<br>#}
+{#                    담은 날짜: {{ year }}년 {{ month }}월 {{ day }}일#}
+                </tr>
+                {% endfor %}
+            </table>
+        </form>
+    </div>
 </div>
 
 </body>
-</html>
+{% endblock content %}
