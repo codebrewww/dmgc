@@ -45,7 +45,7 @@ def login(request):
             auth.login(request, user)
             return redirect('/dmgcapp/')
         else:
-            messages.info(request, '아이디 혹은 비밀번호가 잘못되었습니다')
+            messages.error(request, '아이디 혹은 비밀번호가 잘못되었습니다')
             return redirect('login')
     else:
         return render(request, 'dmgcapp/login.html')
@@ -59,17 +59,17 @@ def logout(request):
 def signup(request):
     if request.method == 'POST':
         if Account.objects.filter(username=request.POST['username']).values():
-            messages.info(request, '이미 존재하는 아이디 입니다.')
+            messages.error(request, '이미 존재하는 아이디 입니다.')
             return redirect('signup')
 
         # 비밀번호가 10자리 미만으로 구성 될 경우
         elif len(request.POST['password1']) < 10:
-            messages.info(request, '비밀번호는 10자 이상으로 설정해주세요')
+            messages.error(request, '비밀번호는 10자 이상으로 설정해주세요')
             return redirect('signup')
 
         # 비밀번호가 서로 일치 하지 않는 경우
         elif request.POST['password1'] != request.POST['password2']:
-            messages.info(request, '비밀번호가 서로 일치하지 않습니다. 확인해 주세요')
+            messages.error(request, '비밀번호가 서로 일치하지 않습니다. 확인해 주세요')
             return redirect('signup')
 
         # 비밀번호가 서로 일치 할 경우
@@ -556,7 +556,8 @@ def calculator(request, today_string):
 
 
 def summary(request):
-    pass
+    if request.method == 'GET':
+        pass
 
 
 def setting(request):

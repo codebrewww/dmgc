@@ -9,6 +9,11 @@
 <a href="{% url 'login' %}">login</a>
 <a href="{% url 'index' %}">home</a>
     <div class="signupForm">
+        {% if messages %}
+            {% for message in messages %}
+                {{ message.tags }}! {{ message.message }}
+            {% endfor %}
+        {% endif %}
         <form method="POST">
             {% csrf_token %}
             <div>
