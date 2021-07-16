@@ -83,3 +83,7 @@ function calc(e){
 
     td_sum_fat.innerText = `${Math.floor(tempFat)}(${Math.floor(tempUnfat)})`;
 }
+
+const onChangeFoodSize = (e) => {
+    console.log(e.target.value)
+}

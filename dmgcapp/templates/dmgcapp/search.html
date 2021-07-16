@@ -21,7 +21,7 @@
             <input type="submit" value="검색" class="d-none"/>
         </form>
         <div>
-            <form id="form-search-result">
+            <form id="form-search-result" method="post">
                 {% csrf_token %}
                 <input id="input-add" type="submit" value="담기"><br>
                 <table id="table-search-result">
@@ -68,7 +68,13 @@
                         <td>{{ maker_name }}</td>
                         <td>{{ food_name }}</td>
                         <td>{{ research_year }}</td>
-                        <td>{{ food_size }}</td>
+                        <td>
+                            <input
+                                type="text"
+                                value="{{ food_size }}"
+                                onchange="onChangeFoodSize(event)"
+                            />
+                        </td>
                         <td>{{ calories }}</td>
                         <td>{{ carbohydrate }} ({{ sugars }})</td>
                         <td>{{ protein }}</td>
@@ -98,3 +104,8 @@
         </div>
     </body>
 {% endblock content %}
+{% block script %}
+<script>
+{# django #}
+</script>
+{% endblock script %}

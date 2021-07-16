@@ -139,6 +139,8 @@ div {
     background: none;
     width: 200px;
     font-size: 100px;
+    z-index: 1;
+    cursor: pointer;
 }
 
 #container-footer {
