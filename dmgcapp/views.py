@@ -79,10 +79,32 @@ def signup(request):
             password_crypt = hashlib.sha256(password.encode('utf-8')).hexdigest()
             nickname = request.POST['nickname']
             email = request.POST['email']
-            user = Account(username=username,
-                         password=password_crypt,
-                         nickname=nickname,
-                         email=email)
+            goalCalories = request.POST.get('goalCalories')
+            goalCaloriesRatio = request.POST.get('goalCaloriesRatio')
+            height = request.POST.get('height')
+            weight = request.POST.get('weight')
+            gender = request.POST.get('gender')
+            birthday = request.POST.get('birthday')
+            birthday_year = ""
+            birthday_month = ""
+            birthday_day = ""
+            if birthday:
+                birthday_year = str(birthday[0:4])
+                birthday_month = str(birthday[5:7])
+                birthday_day = str(birthday[8:10])
+            birthday = birthday_year + birthday_month + birthday_day
+            user = Account(
+                username=username,
+                password=password_crypt,
+                nickname=nickname,
+                email=email,
+                goalCalories=goalCalories,
+                goalCaloriesRatio=goalCaloriesRatio,
+                height=height,
+                weight=weight,
+                gender=gender,
+                birthday=birthday
+            )
             user.save()
             User.objects.create_user(username=username,
                                      password=password)
@@ -214,7 +236,7 @@ def search(request, today_string):
 
             if search_food_name:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/DESC_KOR=%s" % search_food_name
+                            "I2790/json/1/1000/DESC_KOR=%s" % search_food_name
 
             # 검색어 - 제조사
             search_company = request.POST.get('search2')
@@ -225,7 +247,7 @@ def search(request, today_string):
                 search_company = search_company.replace(' ', '_')
             if search_company:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/MAKER_NAME=%s" % search_company
+                            "I2790/json/1/1000/MAKER_NAME=%s" % search_company
 
             # 검색어 - 제조사 & 제품명
             if search_company is not None and search_food_name is not None:
@@ -235,7 +257,7 @@ def search(request, today_string):
                     search_food_name = search_food_name.replace(' ', '_')
             if search_company and search_food_name:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/MAKER_NAME=%s&DESC_KOR=%s" % (search_company, search_food_name)
+                            "I2790/json/1/1000/MAKER_NAME=%s&DESC_KOR=%s" % (search_company, search_food_name)
 
             temp_data = requests.get(url).json()
             json_data = temp_data.get('I2790').get('row')
@@ -555,8 +577,109 @@ def calculator(request, today_string):
         })
 
 
-def summary(request):
+def summary(request, today_string):
+    # 날짜 계산
+    today = datetime.today()
+    today_year = today.year
+    today_month = today.month
+    today_day = today.day
+    today_datetime = datetime(today_year, today_month, today_day)
+    month_day_list = []
+    day_string = 0
+
+    # 3일 전부터 1일 전
+    for i in range(3, 0, -1):
+        one_day = today_datetime - timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
+
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
+
+    # 오늘
+    today_string = str(today_year)
+    if 1 <= today_month <= 9:
+        today_string += ("0" + str(today_month))
+    else:
+        today_string += str(today_month)
+    if 1 <= today_day <= 9:
+        today_string += ("0" + str(today_day))
+    else:
+        today_string += str(today_day)
+
+    today_string = int(today_string)
+    month_day_list.append([today_month, today_day, today_string])
+
+    # 1일 후 부터 3일 후
+    for i in range(1, 4):
+        one_day = today_datetime + timedelta(days=i)
+        day_string = str(one_day.year)
+        if 1 <= one_day.month <= 9:
+            day_string += ("0" + str(one_day.month))
+        else:
+            day_string += str(one_day.month)
+
+        if 1 <= one_day.day <= 9:
+            day_string += ("0" + str(one_day.day))
+        else:
+            day_string += str(one_day.day)
+
+        day_string = int(day_string)
+        temp = [one_day.month, one_day.day, day_string]
+        month_day_list.append(temp)
+
     if request.method == 'GET':
+        username = request.user
+        user_id = Account.objects.filter(username=username).values_list()[0][0]
+        day_object_year = int(request.path[17:21])
+        day_object_month = int(request.path[21:23])
+        day_object_day = int(request.path[23:25])
+        day_object = date(day_object_year, day_object_month, day_object_day)
+        food_info_list = TodayCalories.objects.filter(userId=user_id, date=day_object).values_list()
+        parsed_food_info_list = []
+
+        today_calories = 0
+        today_carb = 0
+        today_prot = 0
+        today_fat = 0
+        for i in range(len(food_info_list)):
+            calories = food_info_list[i][2]
+            food_name = food_info_list[i][3]
+            carb = food_info_list[i][4]
+            prot = food_info_list[i][5]
+            fat = food_info_list[i][6]
+            food_code = food_info_list[i][7]
+            date_object = food_info_list[i][8]
+            year = date_object.year
+            month = date_object.month
+            day = date_object.day
+
+            today_calories += float(calories)
+            today_carb += float(carb)
+            today_prot += float(prot)
+            today_fat += float(fat)
+
+            temp_list = [calories, food_name, carb, prot, fat,
+                         food_code, year, month, day]
+            parsed_food_info_list.append(temp_list)
+
+        return render(request, 'dmgcapp/summary.html', {
+            "month_day_list": month_day_list,
+            "food_info_list": food_info_list,
+            "today_carb": today_carb,
+            "today_prot": today_prot,
+            "today_fat": today_fat,
+            "today_calories": today_calories,
+        })
+    elif request.method == 'POST':
         pass
 
 
