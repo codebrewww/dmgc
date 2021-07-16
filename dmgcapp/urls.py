@@ -10,5 +10,6 @@ urlpatterns = [
     path('profile', views.profile, name='profile'),
     path('profile_edit', views.profile_edit, name='profile_edit'),
     path('calculator/<int:today_string>', views.calculator, name='calculator'),
-    # path('summary', views.)
+    path('summary/<int:today_string>', views.summary, name='summary'),
+
 ]

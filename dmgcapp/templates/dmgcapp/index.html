@@ -9,6 +9,7 @@
         <a href="search/{{ today_string }}">search</a>
         <a href="{% url 'profile' %}">profile</a>
         <a href="calculator/{{ today_string }}">calculator</a>
+        <a href="summary/{{ today_string }}">summary</a>
         {% else %}
             <a href="{% url 'login' %}" >login</a>
             <a href="{% url 'signup' %}" >sign up</a>
