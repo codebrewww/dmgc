@@ -79,10 +79,32 @@ def signup(request):
             password_crypt = hashlib.sha256(password.encode('utf-8')).hexdigest()
             nickname = request.POST['nickname']
             email = request.POST['email']
-            user = Account(username=username,
-                         password=password_crypt,
-                         nickname=nickname,
-                         email=email)
+            goalCalories = request.POST.get('goalCalories')
+            goalCaloriesRatio = request.POST.get('goalCaloriesRatio')
+            height = request.POST.get('height')
+            weight = request.POST.get('weight')
+            gender = request.POST.get('gender')
+            birthday = request.POST.get('birthday')
+            birthday_year = ""
+            birthday_month = ""
+            birthday_day = ""
+            if birthday:
+                birthday_year = str(birthday[0:4])
+                birthday_month = str(birthday[5:7])
+                birthday_day = str(birthday[8:10])
+            birthday = birthday_year + birthday_month + birthday_day
+            user = Account(
+                username=username,
+                password=password_crypt,
+                nickname=nickname,
+                email=email,
+                goalCalories=goalCalories,
+                goalCaloriesRatio=goalCaloriesRatio,
+                height=height,
+                weight=weight,
+                gender=gender,
+                birthday=birthday
+            )
             user.save()
             User.objects.create_user(username=username,
                                      password=password)
