@@ -21,7 +21,7 @@
             <input type="submit" value="검색" class="d-none"/>
         </form>
         <div>
-            <form id="form-search-result">
+            <form id="form-search-result" method="POST">
                 {% csrf_token %}
                 <input id="input-add" type="submit" value="담기"><br>
                 <table id="table-search-result">

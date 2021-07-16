@@ -236,7 +236,7 @@ def search(request, today_string):
 
             if search_food_name:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/DESC_KOR=%s" % search_food_name
+                            "I2790/json/1/1000/DESC_KOR=%s" % search_food_name
 
             # 검색어 - 제조사
             search_company = request.POST.get('search2')
@@ -247,7 +247,7 @@ def search(request, today_string):
                 search_company = search_company.replace(' ', '_')
             if search_company:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/MAKER_NAME=%s" % search_company
+                            "I2790/json/1/1000/MAKER_NAME=%s" % search_company
 
             # 검색어 - 제조사 & 제품명
             if search_company is not None and search_food_name is not None:
@@ -257,7 +257,7 @@ def search(request, today_string):
                     search_food_name = search_food_name.replace(' ', '_')
             if search_company and search_food_name:
                 url = "http://openapi.foodsafetykorea.go.kr/api/6f79706705224d619099/" \
-                            "I2790/json/1/100/MAKER_NAME=%s&DESC_KOR=%s" % (search_company, search_food_name)
+                            "I2790/json/1/1000/MAKER_NAME=%s&DESC_KOR=%s" % (search_company, search_food_name)
 
             temp_data = requests.get(url).json()
             json_data = temp_data.get('I2790').get('row')

@@ -3,6 +3,11 @@
 {% block content %}
 
 <body class="background-blur-image">
+    {% if messages %}
+        {% for message in messages %}
+            {{ message.tags }}! {{ message.message }}
+        {% endfor %}
+    {% endif %}
     <div class="background-image position-fixed"></div>
     <div id="container-login" class="position-fixed w-100 flex-column">
         <div class="nav">
