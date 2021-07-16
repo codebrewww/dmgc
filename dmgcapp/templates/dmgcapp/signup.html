@@ -1,20 +1,21 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>signup</title>
-</head>
-<body>
-<a href="{% url 'login' %}">login</a>
-<a href="{% url 'index' %}">home</a>
-    <div class="signupForm">
+<<<<<<< HEAD
+{% extends "layout.html" %}
+{% block content %}
+
+<body class="background-blur-image">
+    <div class="background-image position-fixed"></div>
+    <div class="nav">
+        <a href="{% url 'index' %}">home</a>
+        <a href="{% url 'login' %}">login</a>
+    </div>
+
+    <div class="w-50 margin-center">
         {% if messages %}
             {% for message in messages %}
                 {{ message.tags }}! {{ message.message }}
             {% endfor %}
         {% endif %}
-        <form method="POST">
+        <form method="POST" id="form-signup">
             {% csrf_token %}
             <div>
                 <label for="nickname">이름</label><br>
@@ -71,6 +72,5 @@
             <button type="submit">가입하기</button>
         </form>
     </div>
-
 </body>
-</html>
+{% endblock content %}
