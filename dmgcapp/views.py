@@ -639,6 +639,37 @@ def summary(request, today_string):
     if request.method == 'GET':
         username = request.user
         user_id = Account.objects.filter(username=username).values_list()[0][0]
+        nickname = Account.objects.filter(username=username).values_list()[0][3]
+        # 탄,단,지 g 비율을 칼로리로 변환하는 로직
+        goalCaloriesRatio = Account.objects.filter(username=username).values_list()[0][6]
+        goalCalories = Account.objects.filter(username=username).values_list()[0][5]
+        calories_ratio = list(map(int, goalCaloriesRatio.split(':')))
+
+        # 하루 탄,단,지 목표 칼로리 담는 리스트
+        goal_calories_list = []
+
+        for i in range(3):
+            # 탄수화물이나 단백질이면 10으로 약분하고 4를 곱함
+            if i == 0 or i == 1:
+                calories_ratio[i] //= 10
+                calories_ratio[i] *= 4
+            # 지방이면 10으로 약분하고 9를 곱합
+            else:
+                calories_ratio[i] //= 10
+                calories_ratio[i] *= 9
+
+        # 칼로리의 비율을 구하기 위해 분모를 구함
+        sum_calories_ratio = sum(calories_ratio)
+        for cal in calories_ratio:
+            # 미리 설정하여 db에 저장한 하루 권장 칼로리에 비율을 곱하여 저장함
+            temp = int((cal / sum_calories_ratio) * int(goalCalories))
+            goal_calories_list.append(temp)
+
+        # 탄,단,지
+        carb1 = goal_calories_list[0]
+        prot1 = goal_calories_list[1]
+        fat1 = goal_calories_list[2]
+
         day_object_year = int(request.path[17:21])
         day_object_month = int(request.path[21:23])
         day_object_day = int(request.path[23:25])
@@ -678,6 +709,11 @@ def summary(request, today_string):
             "today_prot": today_prot,
             "today_fat": today_fat,
             "today_calories": today_calories,
+            "goal_calories_list": goal_calories_list,
+            "carb": carb1,
+            "prot": prot1,
+            "fat": fat1,
+            "nickname": nickname,
         })
     elif request.method == 'POST':
         pass

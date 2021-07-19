@@ -12,6 +12,12 @@
         {% endfor %}
     </div>
     <canvas width="400" height="400" style="border: 1px solid gray" id="canvas"></canvas>
+    <div>
+        <div>{{ nickname }}님이 설정한 하루 3대 영양소별 목표 칼로리</div>
+        <div>탄수화물: {{ carb }}kcal</div>
+        <div>단백질: {{ prot }}kcal</div>
+        <div>지방: {{ fat }}kcal</div>
+    </div>
 </body>
 <script>
     const canvas = document.getElementById('canvas');
