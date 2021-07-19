@@ -21,20 +21,23 @@
             <input type="submit" value="검색" class="d-none"/>
         </form>
         <div>
-            <form id="form-search-result" method="POST">
+            <form id="form-search-result" method="post">
                 {% csrf_token %}
                 <input id="input-add" type="submit" value="담기"><br>
                 <table id="table-search-result">
                     <tr>
                         <th></th>
                         <th>제조사명</th>
-                        <th>식품명</th>
+                        <th>름</th>
                         <th>조사년도</th>
-                        <th>1회제공량(g)</th>
+                        <th>서빙(회)</th>
+                        <th>제공량(g)</th>
                         <th>칼로리</th>
-                        <th>탄수화물(당류)</th>
+                        <th>탄수화물</th>
+                        <th>당류</th>
                         <th>단백질</th>
-                        <th>지방(포화지방)</th>
+                        <th>지방</th>
+                        <th>포화지방</th>
                     </tr>
                     <tr id="tr-sum">
                         <td>
@@ -44,22 +47,36 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td id="td-sum-cal"></td>
                         <td id="td-sum-carb"></td>
+                        <td id="td-sum-sugar"></td>
                         <td id="td-sum-pro"></td>
                         <td id="td-sum-fat"></td>
+                        <td id="td-sum-unfat"></td>
                     </tr>
 
                     {% for maker_name, food_name, research_year, food_size, calories, carbohydrate, protein, fat, saturated_fatty_acid, sugars, food_code in food_info_list  %}
                     <tr>
                         <td>
-                            <input type="checkbox" data-code="{{ food_code }}"
+                            <input type="checkbox"
+                                   data-code="{{ food_code }}"
+                                   data-orgfoodsize="{{ food_size }}"
+                                   data-orgcal="{{ calories }}"
+                                   data-orgcarb="{{ carbohydrate }}"
+                                   data-orgsugar="{{ sugars }}"
+                                   data-orgpro="{{ protein }}"
+                                   data-orgfat="{{ fat }}"
+                                   data-orgunfat="{{ saturated_fatty_acid }}"
+
+                                   data-foodsize="{{ food_size }}"
                                    data-cal="{{ calories }}"
                                    data-carb="{{ carbohydrate }}"
                                    data-sugar="{{ sugars }}"
                                    data-pro="{{ protein }}"
                                    data-fat="{{ fat }}"
                                    data-unfat="{{ saturated_fatty_acid }}"
+                                   class="checkbox-nutr"
                                    name="nutr"
                                    onclick="calc(event)"
                                    value="{{ food_name }}+{{ calories }}+{{ carbohydrate }}+{{ protein }}+{{ fat }}+{{ food_code }}"
@@ -68,11 +85,28 @@
                         <td>{{ maker_name }}</td>
                         <td>{{ food_name }}</td>
                         <td>{{ research_year }}</td>
-                        <td>{{ food_size }}</td>
-                        <td>{{ calories }}</td>
-                        <td>{{ carbohydrate }} ({{ sugars }})</td>
-                        <td>{{ protein }}</td>
-                        <td>{{ fat }} ({{ saturated_fatty_acid }})</td>
+                        <td>
+                            <input
+                                class="input-nutr-foodamount"
+                                type="text"
+                                value="1"
+                                onchange="onChangeFoodAmount(event)"
+                            />
+                        </td>
+                        <td>
+                            <input
+                                class="input-nutr-foodsize"
+                                type="text"
+                                value="{{ food_size }}"
+                                onchange="onChangeFoodSize(event)"
+                            />
+                        </td>
+                        <td class="td-nutr-cal">{{ calories }}</td>
+                        <td class="td-nutr-carb">{{ carbohydrate }}</td>
+                        <td class="td-nutr-sugar">{{ sugars }}</td>
+                        <td class="td-nutr-pro">{{ protein }}</td>
+                        <td class="td-nutr-fat">{{ fat }}</td>
+                        <td class="td-nutr-unfat">{{ saturated_fatty_acid }}</td>
                     </tr>
                  {% endfor %}
                 </table>

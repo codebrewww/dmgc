@@ -131,7 +131,7 @@ div {
     border-bottom: 1px solid black;
 }
 
-#input-add {
+#input-add, #input-delete {
     position: absolute;
     right: 0px;
     top: 120px;
@@ -139,7 +139,10 @@ div {
     background: none;
     width: 200px;
     font-size: 100px;
+    z-index: 1;
+    cursor: pointer;
 }
+
 
 #container-footer {
     height: 80px;
