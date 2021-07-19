@@ -3,7 +3,6 @@
 <body id="background">
     <div class="nav">
         <a href="{% url 'index' %}">home</a>
-        <a href="{% url 'search' %}">search</a>
     </div>
     <div id="container-week" class="flex-row justify-content-between">
         {% for month, day, day_string in month_day_list %}
